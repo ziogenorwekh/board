@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,26 +11,31 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Table(name = "users")
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private UUID id;
 
+    @Column(unique = true)
     private String username;
+
     private String password;
+
+    @Column(unique = true)
     private String email;
-    private boolean enabled;
+
+    private Boolean enabled;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoleEntity> role = new ArrayList<>();
+    private List<RoleEntity> role;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -42,10 +46,25 @@ public class UserEntity {
     private LocalDateTime updatedAt;
 
     @Builder
-    public UserEntity(String username, String password, String email) {
+    public UserEntity(UUID id, String username, String password, String email, Boolean enabled, List<RoleEntity> role) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
-        this.enabled = false;
+        this.enabled = enabled;
+        this.role = role;
+    }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", enabled=" + enabled +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }
