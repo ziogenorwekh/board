@@ -7,6 +7,7 @@ import com.portfolio.boardproject.valueobject.UserId;
 import lombok.Getter;
 import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class User {
     private final String username;
     private final String email;
     private final Boolean enabled;
+    private LocalDateTime createdAt;
     private List<Role> roles;
 
     public User(UserEntity userEntity) {
@@ -29,13 +31,15 @@ public class User {
         this.email = userEntity.getEmail();
         this.enabled = userEntity.getEnabled();
         this.roles = new ArrayList<>();
+        this.createdAt = userEntity.getCreatedAt();
         for (RoleEntity roleEntity : userEntity.getRole()) {
             this.roles.add(new Role(this.id, roleEntity));
         }
     }
 
-    public User(UUID id, String password, String username, String email) {
-        this.id = new UserId(id);
+
+    public User(UUID userId, String password, String username, String email) {
+        this.id = new UserId(userId);
         this.password = new Password(password);
         this.username = username;
         this.email = email;

@@ -1,5 +1,6 @@
 package com.portfolio.boardproject.mapper;
 
+import com.portfolio.boardproject.command.UserTrackQueryResponse;
 import com.portfolio.boardproject.domain.Role;
 import com.portfolio.boardproject.domain.User;
 import com.portfolio.boardproject.jpa.RoleEntity;
@@ -17,6 +18,15 @@ public class UserMapper {
                 .email(user.getEmail())
                 .enabled(user.getEnabled())
                 .role(user.getRoles().stream().map(this::toRoleEntity).toList())
+                .build();
+    }
+
+    public UserTrackQueryResponse toUserTrackQueryResponse(User user) {
+        return UserTrackQueryResponse.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .userId(user.getId().getValue())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 

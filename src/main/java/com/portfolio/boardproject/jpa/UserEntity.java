@@ -46,25 +46,15 @@ public class UserEntity {
     private LocalDateTime updatedAt;
 
     @Builder
-    public UserEntity(UUID id, String username, String password, String email, Boolean enabled, List<RoleEntity> role) {
+    public UserEntity(UUID id, String username, String password, String email, Boolean enabled, List<RoleEntity> role, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.enabled = enabled;
         this.role = role;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    @Override
-    public String toString() {
-        return "UserEntity{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", enabled=" + enabled +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
-    }
 }

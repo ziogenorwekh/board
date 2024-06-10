@@ -15,7 +15,6 @@ import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.security.core.parameters.P;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -120,7 +119,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("유저 생성 with 도메인 클래스")
+    @DisplayName("유저 생성 도메인 클래스")
     public void createUserWithDomainTests() {
 
         // given

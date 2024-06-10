@@ -1,8 +1,14 @@
 package com.portfolio.boardproject.service;
 
-import com.portfolio.boardproject.command.UserCreateCommand;
+import com.portfolio.boardproject.command.*;
 
 public interface UserService {
 
-    void createUser(UserCreateCommand userCreateCommand);
+    UserCreateResponse createUser(UserCreateCommand userCreateCommand);
+
+    UserTrackQueryResponse findUserById(UserTrackQuery userTrackQuery);
+
+    void updateUser(UserUpdateCommand userUpdateCommand);
+
+    void deleteUser(UserDeleteCommand userDeleteCommand);
 }
