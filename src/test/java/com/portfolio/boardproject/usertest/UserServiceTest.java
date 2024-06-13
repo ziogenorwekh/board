@@ -1,37 +1,24 @@
 package com.portfolio.boardproject.usertest;
 
-import com.portfolio.boardproject.command.*;
-import com.portfolio.boardproject.domain.Role;
+import com.portfolio.boardproject.command.user.*;
 import com.portfolio.boardproject.domain.User;
 import com.portfolio.boardproject.jpa.RoleEntity;
 import com.portfolio.boardproject.jpa.RoleEnum;
 import com.portfolio.boardproject.jpa.UserEntity;
 import com.portfolio.boardproject.jpa.UserRepository;
 import com.portfolio.boardproject.mapper.UserMapper;
-import com.portfolio.boardproject.service.UserService;
 import com.portfolio.boardproject.service.UserServiceImpl;
-import com.portfolio.boardproject.valueobject.UserId;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-//@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2,
-//        replace = AutoConfigureTestDatabase.Replace.ANY)
-//@EnableJpaAuditing
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
     @InjectMocks
@@ -43,11 +30,22 @@ public class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
-    private final UUID userId = UUID.randomUUID();
-    private final LocalDateTime createdAt = LocalDateTime.now();
+    private UUID userId;
+    private UserEntity userEntity;
 
     @BeforeEach
     public void setUp() {
+        userId = UUID.randomUUID();
+        userEntity = UserEntity.builder()
+                .enabled(true)
+                .username("username")
+                .password("password")
+                .id(userId)
+                .role(new ArrayList<>())
+                .build();
+
+        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.USER).user(userEntity).build();
+        userEntity.getRole().add(roleEntity);
     }
 
 
@@ -59,16 +57,21 @@ public class UserServiceTest {
         Mockito.when(userCreateCommand.getPassword()).thenReturn("password");
         Mockito.when(userCreateCommand.getUsername()).thenReturn("testuser");
 
-        UserEntity mockUserEntity = Mockito.mock(UserEntity.class);
-        Mockito.when(userMapper.toUserEntity(Mockito.any(User.class))).thenReturn(mockUserEntity);
-
-        Mockito.when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
-        Mockito.when(userRepository.save(Mockito.any(UserEntity.class))).thenReturn(UserEntity.builder()
+        UserEntity mockUserEntity = UserEntity.builder()
                 .id(userId)
-                .createdAt(createdAt)
                 .email("test@example.com")
                 .username("testuser")
-                .password("password").build());
+                .password("password")
+                .enabled(true)
+                .build();
+
+        Mockito.when(userMapper.toUserEntity(Mockito.any(User.class))).thenReturn(mockUserEntity);
+        Mockito.when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
+
+
+        Mockito.when(userRepository.save(Mockito.any(UserEntity.class))).thenReturn(mockUserEntity);
+
+
         // when
         UserCreateResponse response = userService.createUser(userCreateCommand);
 
@@ -76,7 +79,6 @@ public class UserServiceTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals("testuser", response.getUsername());
         Assertions.assertEquals("test@example.com", response.getEmail());
-        Assertions.assertEquals(createdAt, response.getCreatedAt());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(UserEntity.class));
         Mockito.verify(userMapper, Mockito.times(1)).toUserEntity(Mockito.any(User.class));
     }
@@ -89,6 +91,7 @@ public class UserServiceTest {
         UserEntity mockUserEntity = Mockito.mock(UserEntity.class);
 
         Mockito.when(userRepository.findById(Mockito.eq(userId))).thenReturn(Optional.of(mockUserEntity));
+
         Mockito.when(userMapper.toUserTrackQueryResponse(Mockito.any(User.class)))
                 .thenReturn(UserTrackQueryResponse.builder()
                         .userId(userId)
@@ -116,13 +119,15 @@ public class UserServiceTest {
                 .password("password")
                 .id(userId)
                 .role(new ArrayList<>())
+                .posts(new ArrayList<>())
                 .build();
 
         RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.USER).user(userEntity).build();
         userEntity.getRole().add(roleEntity);
 
-        UserUpdateCommand userUpdateCommand = new UserUpdateCommand(userId, "password", "newpassword");
         Mockito.when(userRepository.findById(Mockito.eq(userId))).thenReturn(Optional.of(userEntity));
+
+        UserUpdateCommand userUpdateCommand = new UserUpdateCommand(userId, "password", "newpassword");
 
         UserEntity updatedEntity = UserEntity.builder()
                 .enabled(true)
@@ -130,6 +135,7 @@ public class UserServiceTest {
                 .password("newpassword")
                 .id(userId)
                 .role(new ArrayList<>())
+                .posts(new ArrayList<>())
                 .build();
         Mockito.when(userMapper.toUserEntity(Mockito.any(User.class))).thenReturn(updatedEntity);
 

@@ -2,10 +2,7 @@ package com.portfolio.boardproject.usertest;
 
 import com.portfolio.boardproject.domain.Role;
 import com.portfolio.boardproject.domain.User;
-import com.portfolio.boardproject.jpa.RoleEntity;
-import com.portfolio.boardproject.jpa.RoleEnum;
-import com.portfolio.boardproject.jpa.UserEntity;
-import com.portfolio.boardproject.jpa.UserRepository;
+import com.portfolio.boardproject.jpa.*;
 import com.portfolio.boardproject.mapper.UserMapper;
 import com.portfolio.boardproject.valueobject.Password;
 import com.portfolio.boardproject.valueobject.UserId;
@@ -29,6 +26,7 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+
     private UserMapper userMapper;
     private UUID userId;
     private final String password = "password";
@@ -43,6 +41,7 @@ public class UserRepositoryTest {
                 .email("test@test.com")
                 .enabled(true)
                 .role(new ArrayList<>())
+                .posts(new ArrayList<>())
                 .build();
         RoleEntity role = new RoleEntity(RoleEnum.USER, userEntity);
         userEntity.getRole().add(role);
@@ -70,6 +69,7 @@ public class UserRepositoryTest {
                 .email("HelloWorld@example.com")
                 .enabled(false)
                 .role(new ArrayList<>())
+                .posts(new ArrayList<>())
                 .id(userId)
                 .build();
         RoleEntity role = new RoleEntity(RoleEnum.USER, userEntity);
@@ -98,7 +98,7 @@ public class UserRepositoryTest {
         UserEntity userEntity = userRepository.findById(userId).get();
         String newPassword = "newPassword";
         String currentPassword = "password";
-
+        System.out.println(userEntity.getPosts().size());
         // when
 
         User domainUser = new User(userEntity);

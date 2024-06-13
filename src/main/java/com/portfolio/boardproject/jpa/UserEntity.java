@@ -9,8 +9,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Table(name = "users")
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class UserEntity {
+public class UserEntity extends BaseEntity {
 
     @Id
     @Column(name = "user_id")
@@ -34,27 +34,36 @@ public class UserEntity {
 
     private Boolean enabled;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoleEntity> role;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostEntity> posts;
 
     @Builder
-    public UserEntity(UUID id, String username, String password, String email, Boolean enabled, List<RoleEntity> role, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public UserEntity(UUID id, String username, String password, String email,
+                      Boolean enabled, List<RoleEntity> role
+    , List<PostEntity> posts) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.enabled = enabled;
         this.role = role;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.posts = posts;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(email, that.email) && Objects.equals(enabled, that.enabled) && Objects.equals(role, that.role) && Objects.equals(posts, that.posts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, email, enabled, role, posts);
+    }
 }

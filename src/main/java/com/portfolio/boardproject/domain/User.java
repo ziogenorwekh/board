@@ -1,5 +1,6 @@
 package com.portfolio.boardproject.domain;
 
+import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.jpa.RoleEntity;
 import com.portfolio.boardproject.jpa.UserEntity;
 import com.portfolio.boardproject.valueobject.Password;
@@ -22,6 +23,7 @@ public class User {
     private final String email;
     private final Boolean enabled;
     private LocalDateTime createdAt;
+    private List<Post> posts;
     private List<Role> roles;
 
     public User(UserEntity userEntity) {
@@ -31,7 +33,11 @@ public class User {
         this.email = userEntity.getEmail();
         this.enabled = userEntity.getEnabled();
         this.roles = new ArrayList<>();
+        this.posts = new ArrayList<>();
         this.createdAt = userEntity.getCreatedAt();
+        for(PostEntity postEntity : userEntity.getPosts()) {
+            this.posts.add(new Post(postEntity));
+        }
         for (RoleEntity roleEntity : userEntity.getRole()) {
             this.roles.add(new Role(this.id, roleEntity));
         }
@@ -45,6 +51,7 @@ public class User {
         this.email = email;
         this.enabled = false;
         this.roles = new ArrayList<>();
+        this.posts = new ArrayList<>();
     }
 
 

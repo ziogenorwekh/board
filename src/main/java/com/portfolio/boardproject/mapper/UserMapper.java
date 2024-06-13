@@ -1,8 +1,10 @@
 package com.portfolio.boardproject.mapper;
 
-import com.portfolio.boardproject.command.UserTrackQueryResponse;
+import com.portfolio.boardproject.command.user.UserTrackQueryResponse;
+import com.portfolio.boardproject.domain.Post;
 import com.portfolio.boardproject.domain.Role;
 import com.portfolio.boardproject.domain.User;
+import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.jpa.RoleEntity;
 import com.portfolio.boardproject.jpa.UserEntity;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ public class UserMapper {
                 .password(user.getPassword().getValue())
                 .email(user.getEmail())
                 .enabled(user.getEnabled())
+                .posts(user.getPosts().stream().map(this::toPostEntity).toList())
                 .role(user.getRoles().stream().map(this::toRoleEntity).toList())
                 .build();
     }
@@ -27,6 +30,16 @@ public class UserMapper {
                 .email(user.getEmail())
                 .userId(user.getId().getValue())
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    private PostEntity toPostEntity(Post post) {
+
+        return PostEntity.builder()
+                .postId(post.getPostId().getValue())
+                .title(post.getTitle().getValue())
+                .contents(post.getContents().getValue())
+                .user(UserEntity.builder().id(post.getUserId().getValue()).build())
                 .build();
     }
 

@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Table(name = "roles")
 @Entity
 @Getter
@@ -29,4 +31,16 @@ public class RoleEntity {
         this.user = user;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoleEntity role = (RoleEntity) o;
+        return Objects.equals(id, role.id) && roleName == role.roleName && Objects.equals(user, role.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, roleName, user);
+    }
 }
