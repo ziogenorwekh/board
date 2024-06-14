@@ -1,6 +1,6 @@
 package com.portfolio.boardproject.mapper;
 
-import com.portfolio.boardproject.command.PostTrackQueryResponse;
+import com.portfolio.boardproject.command.post.PostTrackQueryResponse;
 import com.portfolio.boardproject.domain.Post;
 import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.jpa.UserEntity;

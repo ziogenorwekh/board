@@ -1,6 +1,6 @@
 package com.portfolio.boardproject.domain;
 
-import com.portfolio.boardproject.command.PostCreateCommand;
+import com.portfolio.boardproject.command.post.PostCreateCommand;
 import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.valueobject.Contents;
 import com.portfolio.boardproject.valueobject.PostId;

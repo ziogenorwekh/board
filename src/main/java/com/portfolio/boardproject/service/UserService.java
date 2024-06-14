@@ -1,14 +1,15 @@
 package com.portfolio.boardproject.service;
 
 import com.portfolio.boardproject.command.user.*;
+import jakarta.validation.Valid;
 
 public interface UserService {
 
-    UserCreateResponse createUser(UserCreateCommand userCreateCommand);
+    UserCreateResponse createUser(@Valid UserCreateCommand userCreateCommand);
 
-    UserTrackQueryResponse findUserById(UserTrackQuery userTrackQuery);
+    UserTrackQueryResponse findUserById(@Valid UserTrackQuery userTrackQuery);
 
-    void updateUser(UserUpdateCommand userUpdateCommand);
+    void updateUser(@Valid UserUpdateCommand userUpdateCommand);
 
-    void deleteUser(UserDeleteCommand userDeleteCommand);
+    void deleteUser(@Valid UserDeleteCommand userDeleteCommand);
 }

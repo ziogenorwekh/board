@@ -1,4 +1,4 @@
-package com.portfolio.boardproject.command;
+package com.portfolio.boardproject.command.post;
 
 import lombok.Builder;
 import lombok.Getter;

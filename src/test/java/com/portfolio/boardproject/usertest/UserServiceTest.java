@@ -127,8 +127,8 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findById(Mockito.eq(userId))).thenReturn(Optional.of(userEntity));
 
-        UserUpdateCommand userUpdateCommand = new UserUpdateCommand(userId, "password", "newpassword");
-
+        UserUpdateCommand userUpdateCommand = new UserUpdateCommand( "password", "newpassword");
+        userUpdateCommand.setUserId(userId);
         UserEntity updatedEntity = UserEntity.builder()
                 .enabled(true)
                 .username("username")

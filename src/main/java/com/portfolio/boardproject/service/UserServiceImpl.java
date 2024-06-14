@@ -13,10 +13,12 @@ import com.portfolio.boardproject.valueobject.Password;
 import com.portfolio.boardproject.valueobject.UserId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.UUID;
 
 @Service
+@Validated
 public class UserServiceImpl implements UserService {
 
 

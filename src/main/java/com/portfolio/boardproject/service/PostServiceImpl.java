@@ -1,19 +1,17 @@
 package com.portfolio.boardproject.service;
 
-import com.portfolio.boardproject.command.*;
+import com.portfolio.boardproject.command.post.*;
 import com.portfolio.boardproject.domain.Post;
 import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.jpa.PostRepository;
 import com.portfolio.boardproject.mapper.PostMapper;
 import com.portfolio.boardproject.valueobject.Contents;
-import com.portfolio.boardproject.valueobject.PostId;
 import com.portfolio.boardproject.valueobject.Title;
 import com.portfolio.boardproject.valueobject.UserId;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class PostServiceImpl implements PostService {

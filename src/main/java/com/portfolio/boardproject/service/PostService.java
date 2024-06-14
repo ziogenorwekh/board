@@ -1,6 +1,6 @@
 package com.portfolio.boardproject.service;
 
-import com.portfolio.boardproject.command.*;
+import com.portfolio.boardproject.command.post.*;
 
 import java.util.List;
 

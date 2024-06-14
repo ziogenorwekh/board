@@ -1,6 +1,6 @@
 package com.portfolio.boardproject.posttest;
 
-import com.portfolio.boardproject.command.*;
+import com.portfolio.boardproject.command.post.*;
 import com.portfolio.boardproject.domain.Post;
 import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.jpa.PostRepository;
@@ -71,7 +71,8 @@ public class PostServiceTest {
         // given
         UUID postId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        PostUpdateCommand postUpdateCommand = new PostUpdateCommand(postId, "updateTitle", "updateContents", userId);
+        PostUpdateCommand postUpdateCommand = new PostUpdateCommand("updateTitle", "updateContents", userId);
+        postUpdateCommand.setPostId(postId);
         PostEntity postEntity = Mockito.mock(PostEntity.class);
         UserEntity userEntity = Mockito.mock(UserEntity.class);
         PostEntity updatedPostEntity = Mockito.mock(PostEntity.class);
@@ -125,7 +126,8 @@ public class PostServiceTest {
     public void postDeleteTests() {
         // given
         UUID postId = UUID.randomUUID();
-        PostDeleteCommand postDeleteCommand = new PostDeleteCommand(userId, postId);
+        PostDeleteCommand postDeleteCommand = new PostDeleteCommand(userId);
+        postDeleteCommand.setPostId(postId);
 
         PostEntity postEntity = Mockito.mock(PostEntity.class);
         Mockito.when(postRepository.findById(postId)).thenReturn(Optional.of(postEntity));
