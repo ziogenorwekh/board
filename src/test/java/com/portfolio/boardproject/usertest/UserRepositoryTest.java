@@ -26,7 +26,6 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-
     private UserMapper userMapper;
     private UUID userId;
     private final String password = "password";
@@ -43,7 +42,7 @@ public class UserRepositoryTest {
                 .role(new ArrayList<>())
                 .posts(new ArrayList<>())
                 .build();
-        RoleEntity role = new RoleEntity(RoleEnum.USER, userEntity);
+        RoleEntity role = new RoleEntity(RoleEnum.ROLE_USER, userEntity);
         userEntity.getRole().add(role);
         userRepository.save(userEntity);
     }
@@ -72,7 +71,7 @@ public class UserRepositoryTest {
                 .posts(new ArrayList<>())
                 .id(userId)
                 .build();
-        RoleEntity role = new RoleEntity(RoleEnum.USER, userEntity);
+        RoleEntity role = new RoleEntity(RoleEnum.ROLE_USER, userEntity);
         userEntity.getRole().add(role);
         // when
         userRepository.save(userEntity);
@@ -97,13 +96,12 @@ public class UserRepositoryTest {
         // given
         UserEntity userEntity = userRepository.findById(userId).get();
         String newPassword = "newPassword";
-        String currentPassword = "password";
         System.out.println(userEntity.getPosts().size());
         // when
 
         User domainUser = new User(userEntity);
 
-        domainUser.updatePassword(new Password(currentPassword), new Password(newPassword));
+        domainUser.updatePassword(new Password(newPassword));
 
         // then
         UserMapper userMapper = new UserMapper();
@@ -129,7 +127,7 @@ public class UserRepositoryTest {
         UUID newId = UUID.randomUUID();
 
         User user = new User(newId, password, username, email);
-        Role role = new Role(new UserId(newId), RoleEnum.USER);
+        Role role = new Role(new UserId(newId), RoleEnum.ROLE_USER);
         user.addRole(role);
 
         // when
@@ -149,14 +147,14 @@ public class UserRepositoryTest {
         User user = new User(userEntity);
 
         // when
-        user.addRole(new Role(new UserId(userId), RoleEnum.ADMIN));
+        user.addRole(new Role(new UserId(userId), RoleEnum.ROLE_ADMIN));
         UserEntity updated = userMapper.toUserEntity(user);
         userRepository.save(updated);
         UserEntity result = userRepository.findById(userId).get();
 
         // then
         Assertions.assertEquals(2,result.getRole().size());
-        Assertions.assertEquals(RoleEnum.USER,result.getRole().get(0).getRoleName());
-        Assertions.assertEquals(RoleEnum.ADMIN,result.getRole().get(1).getRoleName());
+        Assertions.assertEquals(RoleEnum.ROLE_USER,result.getRole().get(0).getRoleName());
+        Assertions.assertEquals(RoleEnum.ROLE_ADMIN,result.getRole().get(1).getRoleName());
     }
 }

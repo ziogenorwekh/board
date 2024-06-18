@@ -12,6 +12,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private UserMapper userMapper;
@@ -44,7 +48,7 @@ public class UserServiceTest {
                 .role(new ArrayList<>())
                 .build();
 
-        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.USER).user(userEntity).build();
+        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.ROLE_USER).user(userEntity).build();
         userEntity.getRole().add(roleEntity);
     }
 
@@ -122,10 +126,11 @@ public class UserServiceTest {
                 .posts(new ArrayList<>())
                 .build();
 
-        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.USER).user(userEntity).build();
+        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.ROLE_USER).user(userEntity).build();
         userEntity.getRole().add(roleEntity);
 
         Mockito.when(userRepository.findById(Mockito.eq(userId))).thenReturn(Optional.of(userEntity));
+        Mockito.when(passwordEncoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
 
         UserUpdateCommand userUpdateCommand = new UserUpdateCommand( "password", "newpassword");
         userUpdateCommand.setUserId(userId);

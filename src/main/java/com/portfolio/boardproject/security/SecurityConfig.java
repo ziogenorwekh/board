@@ -1,12 +1,23 @@
 package com.portfolio.boardproject.security;
 
+import com.portfolio.boardproject.jpa.UserRepository;
+import org.apache.catalina.core.ApplicationContext;
 import org.hibernate.validator.internal.metadata.raw.ConfigurationSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,7 +28,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 @Configuration
+@ComponentScan
+@EnableWebSecurity
 public class SecurityConfig {
+
+    private final CustomUserDetailsService customUserDetailsService;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtProvider jwtProvider;
+
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService,
+                          AuthenticationConfiguration authenticationConfiguration, JwtProvider jwtProvider) {
+        this.customUserDetailsService = customUserDetailsService;
+        this.authenticationConfiguration = authenticationConfiguration;
+        this.jwtProvider = jwtProvider;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,10 +58,21 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.sessionManagement(AbstractHttpConfigurer::disable);
         http.logout(AbstractHttpConfigurer::disable);
+        http.userDetailsService(customUserDetailsService);
         http.cors(abstractHttpConfigurer->{
             abstractHttpConfigurer.configurationSource(corsConfigurationSource());
         });
+        http.authenticationManager(authenticationManager(authenticationConfiguration));
         return http.build();
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration
+                                                                   authenticationConfiguration) throws Exception {
+        ProviderManager authenticationManager = (ProviderManager)authenticationConfiguration.getAuthenticationManager();
+        return authenticationManager;
+
     }
 
     @Bean
@@ -57,5 +92,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

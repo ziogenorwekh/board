@@ -1,5 +1,5 @@
 package com.portfolio.boardproject.jpa;
 
 public enum RoleEnum {
-    USER, ADMIN,
+    ROLE_USER, ROLE_ADMIN,
 }

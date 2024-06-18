@@ -9,6 +9,7 @@ import com.portfolio.boardproject.valueobject.Contents;
 import com.portfolio.boardproject.valueobject.Title;
 import com.portfolio.boardproject.valueobject.UserId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostCreateResponse createPost(PostCreateCommand postCreateCommand) {
 
         Post post = Post.initialize(postCreateCommand);
@@ -35,6 +37,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PostTrackQueryResponse findOnePost(PostTrackQuery postTrackQuery) {
         PostEntity postEntity = postRepository.findById(postTrackQuery.getPostId())
                 .orElseThrow(() -> new RuntimeException());
@@ -42,6 +45,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PostTrackQueryResponse> findAllPosts() {
         List<PostTrackQueryResponse> postTrackQueryResponses = new ArrayList<>();
         postRepository.findAll().stream().forEach(postEntity -> postTrackQueryResponses
@@ -50,6 +54,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void updatePost(PostUpdateCommand postUpdateCommand) {
         PostEntity postEntity = postRepository.findById(postUpdateCommand.getPostId()).orElseThrow(() -> {
             throw new RuntimeException();
@@ -65,6 +70,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void deletePost(PostDeleteCommand postDeleteCommand) {
         PostEntity postEntity = postRepository
                 .findById(postDeleteCommand.getPostId()).orElseThrow(() -> new RuntimeException());

@@ -188,3 +188,5 @@ gradle-app.setting
 
 
 # Custom
+mail-test.yml
+application-test.yml

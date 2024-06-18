@@ -1,3 +1,6 @@
 spring:
   application:
     name: board-project
+
+token:
+  secret: test

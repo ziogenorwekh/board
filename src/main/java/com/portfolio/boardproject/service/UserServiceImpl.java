@@ -11,6 +11,7 @@ import com.portfolio.boardproject.jpa.UserRepository;
 import com.portfolio.boardproject.mapper.UserMapper;
 import com.portfolio.boardproject.valueobject.Password;
 import com.portfolio.boardproject.valueobject.UserId;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -24,19 +25,23 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
+    @Transactional
     public UserCreateResponse createUser(UserCreateCommand userCreateCommand) {
         validateDuplicatedEmail(userCreateCommand.getEmail());
+        String encodePassword = passwordEncoder.encode(userCreateCommand.getPassword());
         UUID userId = UUID.randomUUID();
-        User user = new User(userId, userCreateCommand.getPassword()
+        User user = new User(userId, encodePassword
                 , userCreateCommand.getUsername(), userCreateCommand.getEmail());
-        Role role = new Role(new UserId(userId), RoleEnum.USER);
+        Role role = new Role(new UserId(userId), RoleEnum.ROLE_USER);
         user.addRole(role);
 
         UserEntity userEntity = userMapper.toUserEntity(user);
@@ -45,6 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserTrackQueryResponse findUserById(UserTrackQuery userTrackQuery) {
 
         UserEntity userEntity = userRepository.findById(userTrackQuery.getUserId()).orElseThrow(() ->
@@ -60,13 +66,19 @@ public class UserServiceImpl implements UserService {
                 new UserNotFoundException(String.format("User with id %s not found",
                         userUpdateCommand.getUserId())));
         User user = new User(userEntity);
-        user.updatePassword(new Password(userUpdateCommand.getCurrentPassword()),
-                new Password(userUpdateCommand.getNewPassword()));
+
+        if (!passwordEncoder.matches(userUpdateCommand.getCurrentPassword(), user.getPassword().getValue())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        Password newPassword = new Password(passwordEncoder.encode(userUpdateCommand.getNewPassword()));
+        user.updatePassword(newPassword);
         UserEntity updatedEntity = userMapper.toUserEntity(user);
         userRepository.save(updatedEntity);
     }
 
     @Override
+    @Transactional
     public void deleteUser(UserDeleteCommand userDeleteCommand) {
         UserEntity userEntity = userRepository.findById(userDeleteCommand.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(String.format("User with id %s not found",

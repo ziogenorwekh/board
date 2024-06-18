@@ -21,7 +21,7 @@ public class User {
     private Password password;
     private final String username;
     private final String email;
-    private final Boolean enabled;
+    private Boolean enabled;
     private LocalDateTime createdAt;
     private List<Post> posts;
     private List<Role> roles;
@@ -35,14 +35,13 @@ public class User {
         this.roles = new ArrayList<>();
         this.posts = new ArrayList<>();
         this.createdAt = userEntity.getCreatedAt();
-        for(PostEntity postEntity : userEntity.getPosts()) {
+        for (PostEntity postEntity : userEntity.getPosts()) {
             this.posts.add(new Post(postEntity));
         }
         for (RoleEntity roleEntity : userEntity.getRole()) {
             this.roles.add(new Role(this.id, roleEntity));
         }
     }
-
 
     public User(UUID userId, String password, String username, String email) {
         this.id = new UserId(userId);
@@ -55,12 +54,8 @@ public class User {
     }
 
 
-    public void updatePassword(Password currentPassword, Password newPassword) {
-        if (password.equals(currentPassword)) {
-            this.password = newPassword;
-        } else {
-            throw new IllegalArgumentException("Passwords do not match");
-        }
+    public void updatePassword(Password newPassword) {
+        this.password = newPassword;
     }
 
     public void addRole(Role role) {
@@ -68,6 +63,10 @@ public class User {
             throw new IllegalArgumentException("Role already exists");
         }
         roles.add(role);
+    }
+
+    public void updateEnabled() {
+        this.enabled = true;
     }
 
 }
