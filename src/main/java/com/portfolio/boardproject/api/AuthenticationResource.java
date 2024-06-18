@@ -7,6 +7,10 @@ import com.portfolio.boardproject.security.CustomUserDetailsService;
 import com.portfolio.boardproject.security.JwtProvider;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,21 +33,40 @@ public class AuthenticationResource {
         this.customUserDetailsService = customUserDetailsService;
     }
 
+    @Operation(summary = "Login", description = "Authenticate user and generate JWT token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful",
+                    content = {@io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = LoginResponseVO.class)),
+                    }),
+            @ApiResponse(responseCode = "400", description = "Invalid login credentials")
+    })
     @RequestMapping(path = "/login", method = RequestMethod.POST)
-    public ResponseEntity<LoginResponseVO> login(@RequestBody LoginVO loginVO) {
+    public ResponseEntity<LoginResponseVO> login(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Login credentials") @RequestBody LoginVO loginVO) {
         LoginResponseVO loginResponseVO = authService.login(loginVO);
         return ResponseEntity.ok(loginResponseVO);
     }
 
-    @RequestMapping(path = "/mail", method = RequestMethod.POST)
-    public ResponseEntity<Void> mailSend(@RequestParam("email") String email) {
+    @Operation(summary = "Send Verification Email", description = "Send verification email to the user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Email sent successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid email format")
+    })
+    @RequestMapping(path = "/send-mail", method = RequestMethod.POST)
+    public ResponseEntity<Void> mailSend(@Parameter(description = "User email") @RequestParam("email") String email) {
         User user = customUserDetailsService.findByEmail(email);
         authService.sendMail(user);
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(path = "/verify/mail",method = RequestMethod.PUT)
-    public ResponseEntity<Void> verifyMail(@RequestParam("code") String code, @RequestParam("email") String email) {
+    @Operation(summary = "Verify Email", description = "Verify user's email with the received code")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Email verified successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid verification code")
+    })
+    @RequestMapping(path = "/verification/mail",method = RequestMethod.PUT)
+    public ResponseEntity<Void> verifyMail(@Parameter(description = "Verification code") @RequestParam("code") String code,
+                                           @Parameter(description = "User email") @RequestParam("email") String email) {
         Boolean verified = authService.verifyEmail(email, code);
         if (verified) {
             customUserDetailsService.activateUser(email);
