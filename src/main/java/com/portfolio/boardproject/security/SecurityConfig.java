@@ -34,13 +34,18 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final JwtProvider jwtProvider;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
 
     public SecurityConfig(CustomUserDetailsService customUserDetailsService,
-                          AuthenticationConfiguration authenticationConfiguration, JwtProvider jwtProvider) {
+                          AuthenticationConfiguration authenticationConfiguration,
+                          JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+                          JwtAccessDeniedHandler jwtAccessDeniedHandler) {
         this.customUserDetailsService = customUserDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtProvider = jwtProvider;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
     }
 
     @Bean
@@ -59,6 +64,10 @@ public class SecurityConfig {
         http.sessionManagement(AbstractHttpConfigurer::disable);
         http.logout(AbstractHttpConfigurer::disable);
         http.userDetailsService(customUserDetailsService);
+        http.exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
+            httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(jwtAccessDeniedHandler)
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint);
+        });
         http.cors(abstractHttpConfigurer->{
             abstractHttpConfigurer.configurationSource(corsConfigurationSource());
         });

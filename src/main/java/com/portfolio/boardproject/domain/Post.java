@@ -1,6 +1,7 @@
 package com.portfolio.boardproject.domain;
 
 import com.portfolio.boardproject.command.post.PostCreateCommand;
+import com.portfolio.boardproject.exception.NotOwnerException;
 import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.valueobject.Contents;
 import com.portfolio.boardproject.valueobject.PostId;
@@ -70,15 +71,13 @@ public class Post {
 
 
     public void delete(UserId userId) {
-        if (!this.userId.equals(userId)) {
-            throw new RuntimeException("You are not allowed to delete a post");
-        }
+       validatePostOwner(userId);
     }
 
 
     private void validatePostOwner(UserId userId) {
         if (!this.userId.equals(userId)) {
-            throw new RuntimeException("You are not allowed to update a post");
+            throw new NotOwnerException("You are not allowed to update a post");
         }
     }
 }

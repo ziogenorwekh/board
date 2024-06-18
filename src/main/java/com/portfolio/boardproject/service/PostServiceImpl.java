@@ -2,6 +2,7 @@ package com.portfolio.boardproject.service;
 
 import com.portfolio.boardproject.command.post.*;
 import com.portfolio.boardproject.domain.Post;
+import com.portfolio.boardproject.exception.PostNotFoundException;
 import com.portfolio.boardproject.jpa.PostEntity;
 import com.portfolio.boardproject.jpa.PostRepository;
 import com.portfolio.boardproject.mapper.PostMapper;
@@ -40,7 +41,8 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public PostTrackQueryResponse findOnePost(PostTrackQuery postTrackQuery) {
         PostEntity postEntity = postRepository.findById(postTrackQuery.getPostId())
-                .orElseThrow(() -> new RuntimeException());
+                .orElseThrow(() -> new PostNotFoundException(String.
+                        format("Post with id %s not found", postTrackQuery.getPostId())));
         return postMapper.toPostTrackQueryResponse(postEntity);
     }
 
@@ -56,9 +58,9 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void updatePost(PostUpdateCommand postUpdateCommand) {
-        PostEntity postEntity = postRepository.findById(postUpdateCommand.getPostId()).orElseThrow(() -> {
-            throw new RuntimeException();
-        });
+        PostEntity postEntity = postRepository.findById(postUpdateCommand.getPostId()).orElseThrow(() ->
+                new PostNotFoundException(String.
+                format("Post with id %s not found", postUpdateCommand.getPostId())));
 
         Post post = new Post(postEntity);
         post.updateTitle(new Title(postUpdateCommand.getTitle()), new UserId(postUpdateCommand.getUserId()));
@@ -73,7 +75,8 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void deletePost(PostDeleteCommand postDeleteCommand) {
         PostEntity postEntity = postRepository
-                .findById(postDeleteCommand.getPostId()).orElseThrow(() -> new RuntimeException());
+                .findById(postDeleteCommand.getPostId()).orElseThrow(() -> new PostNotFoundException(String.
+                        format("Post with id %s not found", postDeleteCommand.getPostId())));
         Post post = new Post(postEntity);
         post.delete(new UserId(postDeleteCommand.getUserId()));
         postRepository.delete(postEntity);

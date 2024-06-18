@@ -1,6 +1,7 @@
 package com.portfolio.boardproject.security;
 
 import com.portfolio.boardproject.domain.User;
+import com.portfolio.boardproject.exception.UserNotFoundException;
 import com.portfolio.boardproject.jpa.UserEntity;
 import com.portfolio.boardproject.jpa.UserRepository;
 import com.portfolio.boardproject.mapper.UserMapper;
@@ -32,14 +33,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
-        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email));
+        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() ->
+                new UserNotFoundException(String.format("User with email %s not found", email)));
         return new User(userEntity);
     }
 
 
     @Transactional
     public void activateUser(String email) {
-        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email));
+        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() ->
+                new UserNotFoundException(String.format("User with email %s not found", email)));
         User user = new User(userEntity);
         user.updateEnabled();
         UserEntity updatedUserEntity = userMapper.toUserEntity(user);

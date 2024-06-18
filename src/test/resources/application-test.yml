@@ -1,6 +1,4 @@
 spring:
-  redis:
-    port: 13000
   mail:
     host: smtp.gmail.com
     port: 587

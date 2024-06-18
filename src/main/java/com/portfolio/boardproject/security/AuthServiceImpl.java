@@ -1,11 +1,13 @@
 package com.portfolio.boardproject.security;
 
 import com.portfolio.boardproject.domain.User;
+import com.portfolio.boardproject.exception.AlreadyRegisteredException;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -59,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Future<String> sendMail(User user) {
         if (user.getEnabled()) {
-            throw new RuntimeException("User is enabled");
+            throw new AlreadyRegisteredException("User is enabled");
         }
         redisTemplate.delete(user.getEmail());
 
@@ -94,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
 
             javaMailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email", e);
+            throw new MailSendException("Failed to send email", e);
         }
     }
 
