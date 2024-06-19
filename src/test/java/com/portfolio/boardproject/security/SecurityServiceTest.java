@@ -7,14 +7,13 @@ import com.portfolio.boardproject.jpa.UserEntity;
 import com.portfolio.boardproject.jpa.UserRepository;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
+import com.portfolio.boardproject.vo.VerifyCodeVO;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -23,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 @SpringBootTest
-@EnableJpaAuditing
+//@EnableJpaAuditing
 @ActiveProfiles("test")
 public class SecurityServiceTest {
 
@@ -58,7 +57,7 @@ public class SecurityServiceTest {
                 .email("email@email.com")
                 .enabled(true)
                 .build();
-        RoleEntity roleEntity = RoleEntity.builder().user(userEntity).roleName(RoleEnum.ROLE_USER).build();
+        RoleEntity roleEntity = RoleEntity.builder().user(userEntity).roleName(RoleEnum.USER).build();
         userEntity.getRole().add(roleEntity);
         userRepository.save(userEntity);
 
@@ -73,7 +72,7 @@ public class SecurityServiceTest {
                 .email("ziogenorwekh@gmail.com")
                 .enabled(false)
                 .build();
-        RoleEntity roleEntity2 = RoleEntity.builder().user(userEntity2).roleName(RoleEnum.ROLE_USER).build();
+        RoleEntity roleEntity2 = RoleEntity.builder().user(userEntity2).roleName(RoleEnum.USER).build();
         userEntity.getRole().add(roleEntity2);
 
         userRepository.save(userEntity2);
@@ -120,7 +119,7 @@ public class SecurityServiceTest {
         // when
         Future<String> stringFuture = authService.sendMail(user);
         // then
-        Boolean aBoolean = authService.verifyEmail(user.getEmail(), stringFuture.get());
+        Boolean aBoolean = authService.verifyEmail(new VerifyCodeVO("ziogenorwekh@gmail.com",stringFuture.get()));
         Assertions.assertTrue(aBoolean);
     }
 
@@ -131,7 +130,7 @@ public class SecurityServiceTest {
         // given
         User user = customUserDetailsService.findByEmail("ziogenorwekh@gmail.com");
         Future<String> code = authService.sendMail(user);
-        authService.verifyEmail(user.getEmail(), code.get());
+        authService.verifyEmail(new VerifyCodeVO(user.getEmail(), code.get()));
 
         // when
         customUserDetailsService.activateUser("ziogenorwekh@gmail.com");

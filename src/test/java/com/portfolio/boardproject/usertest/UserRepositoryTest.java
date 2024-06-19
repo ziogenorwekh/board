@@ -11,16 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.UUID;
-
+@ActiveProfiles("test")
 @DataJpaTest(showSql = false)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2,
         replace = AutoConfigureTestDatabase.Replace.ANY)
-@EnableJpaAuditing
 public class UserRepositoryTest {
 
     @Autowired
@@ -42,7 +41,7 @@ public class UserRepositoryTest {
                 .role(new ArrayList<>())
                 .posts(new ArrayList<>())
                 .build();
-        RoleEntity role = new RoleEntity(RoleEnum.ROLE_USER, userEntity);
+        RoleEntity role = new RoleEntity(RoleEnum.USER, userEntity);
         userEntity.getRole().add(role);
         userRepository.save(userEntity);
     }
@@ -71,7 +70,7 @@ public class UserRepositoryTest {
                 .posts(new ArrayList<>())
                 .id(userId)
                 .build();
-        RoleEntity role = new RoleEntity(RoleEnum.ROLE_USER, userEntity);
+        RoleEntity role = new RoleEntity(RoleEnum.USER, userEntity);
         userEntity.getRole().add(role);
         // when
         userRepository.save(userEntity);
@@ -127,7 +126,7 @@ public class UserRepositoryTest {
         UUID newId = UUID.randomUUID();
 
         User user = new User(newId, password, username, email);
-        Role role = new Role(new UserId(newId), RoleEnum.ROLE_USER);
+        Role role = new Role(new UserId(newId), RoleEnum.USER);
         user.addRole(role);
 
         // when
@@ -147,14 +146,14 @@ public class UserRepositoryTest {
         User user = new User(userEntity);
 
         // when
-        user.addRole(new Role(new UserId(userId), RoleEnum.ROLE_ADMIN));
+        user.addRole(new Role(new UserId(userId), RoleEnum.ADMIN));
         UserEntity updated = userMapper.toUserEntity(user);
         userRepository.save(updated);
         UserEntity result = userRepository.findById(userId).get();
 
         // then
         Assertions.assertEquals(2,result.getRole().size());
-        Assertions.assertEquals(RoleEnum.ROLE_USER,result.getRole().get(0).getRoleName());
-        Assertions.assertEquals(RoleEnum.ROLE_ADMIN,result.getRole().get(1).getRoleName());
+        Assertions.assertEquals(RoleEnum.USER,result.getRole().get(0).getRoleName());
+        Assertions.assertEquals(RoleEnum.ADMIN,result.getRole().get(1).getRoleName());
     }
 }

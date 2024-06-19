@@ -4,6 +4,7 @@ import com.portfolio.boardproject.domain.User;
 import com.portfolio.boardproject.exception.AlreadyRegisteredException;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
+import com.portfolio.boardproject.vo.VerifyCodeVO;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -77,9 +78,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean verifyEmail(String email, String code) {
-        String savedCode = redisTemplate.opsForValue().get(email);
-        if (savedCode != null && savedCode.equals(code)) {
+    public Boolean verifyEmail(VerifyCodeVO verifyCodeVO) {
+        String savedCode = redisTemplate.opsForValue().get(verifyCodeVO.getEmail());
+        if (savedCode != null && savedCode.equals(verifyCodeVO.getCode())) {
             return true;
         }
         return false;

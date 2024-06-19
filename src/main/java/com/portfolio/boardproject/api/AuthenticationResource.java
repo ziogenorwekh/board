@@ -7,6 +7,8 @@ import com.portfolio.boardproject.security.CustomUserDetailsService;
 import com.portfolio.boardproject.security.JwtProvider;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
+import com.portfolio.boardproject.vo.SendEmailVO;
+import com.portfolio.boardproject.vo.VerifyCodeVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -53,8 +55,8 @@ public class AuthenticationResource {
             @ApiResponse(responseCode = "400", description = "Invalid email format")
     })
     @RequestMapping(path = "/send-mail", method = RequestMethod.POST)
-    public ResponseEntity<Void> mailSend(@Parameter(description = "User email") @RequestParam("email") String email) {
-        User user = customUserDetailsService.findByEmail(email);
+    public ResponseEntity<Void> mailSend(@Parameter(description = "User email") @RequestBody SendEmailVO sendEmailVO) {
+        User user = customUserDetailsService.findByEmail(sendEmailVO.getEmail());
         authService.sendMail(user);
         return ResponseEntity.ok().build();
     }
@@ -65,11 +67,10 @@ public class AuthenticationResource {
             @ApiResponse(responseCode = "400", description = "Invalid verification code")
     })
     @RequestMapping(path = "/verification/mail",method = RequestMethod.PUT)
-    public ResponseEntity<Void> verifyMail(@Parameter(description = "Verification code") @RequestParam("code") String code,
-                                           @Parameter(description = "User email") @RequestParam("email") String email) {
-        Boolean verified = authService.verifyEmail(email, code);
+    public ResponseEntity<Void> verifyMail(@Parameter(description = "Verification code") @RequestBody VerifyCodeVO verifyCodeVO) {
+        Boolean verified = authService.verifyEmail(verifyCodeVO);
         if (verified) {
-            customUserDetailsService.activateUser(email);
+            customUserDetailsService.activateUser(verifyCodeVO.getEmail());
             return ResponseEntity.ok().build();
         } else {
             throw new BadCredentialsException("Invalid verification code");

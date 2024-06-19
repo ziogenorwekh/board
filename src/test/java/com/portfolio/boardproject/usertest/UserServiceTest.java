@@ -48,7 +48,7 @@ public class UserServiceTest {
                 .role(new ArrayList<>())
                 .build();
 
-        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.ROLE_USER).user(userEntity).build();
+        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.USER).user(userEntity).build();
         userEntity.getRole().add(roleEntity);
     }
 
@@ -126,7 +126,7 @@ public class UserServiceTest {
                 .posts(new ArrayList<>())
                 .build();
 
-        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.ROLE_USER).user(userEntity).build();
+        RoleEntity roleEntity = RoleEntity.builder().roleName(RoleEnum.USER).user(userEntity).build();
         userEntity.getRole().add(roleEntity);
 
         Mockito.when(userRepository.findById(Mockito.eq(userId))).thenReturn(Optional.of(userEntity));

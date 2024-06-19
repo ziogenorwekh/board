@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
         UUID userId = UUID.randomUUID();
         User user = new User(userId, encodePassword
                 , userCreateCommand.getUsername(), userCreateCommand.getEmail());
-        Role role = new Role(new UserId(userId), RoleEnum.ROLE_USER);
+        Role role = new Role(new UserId(userId), RoleEnum.USER);
         user.addRole(role);
 
         UserEntity userEntity = userMapper.toUserEntity(user);

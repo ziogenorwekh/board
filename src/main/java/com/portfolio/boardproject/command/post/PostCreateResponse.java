@@ -1,6 +1,7 @@
 package com.portfolio.boardproject.command.post;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class PostCreateResponse {
     private final LocalDateTime createdAt;
 
 
+    @Builder
     public PostCreateResponse(UUID postId, LocalDateTime createdAt) {
         this.postId = postId;
         this.createdAt = createdAt;

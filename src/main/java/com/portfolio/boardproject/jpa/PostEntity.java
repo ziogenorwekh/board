@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -20,6 +22,8 @@ import java.util.UUID;
 public class PostEntity extends BaseEntity {
 
     @Id
+    @Column(name = "post_id",columnDefinition = "CHAR(36)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID postId;
 
     private String title;

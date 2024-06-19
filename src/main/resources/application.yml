@@ -1,6 +1,5 @@
 spring:
+  profiles:
+    active: prod
   application:
     name: board-project
-
-token:
-  secret: test

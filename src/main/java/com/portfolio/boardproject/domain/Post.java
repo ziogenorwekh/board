@@ -71,7 +71,9 @@ public class Post {
 
 
     public void delete(UserId userId) {
-       validatePostOwner(userId);
+        if (!this.userId.equals(userId)) {
+            throw new NotOwnerException("You are not allowed to delete a post");
+        }
     }
 
 

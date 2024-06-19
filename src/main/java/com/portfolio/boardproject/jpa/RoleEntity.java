@@ -14,10 +14,11 @@ import java.util.Objects;
 public class RoleEntity {
 
     @Id
+    @Column(name = "rold_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name = "role_name")
     @Enumerated(EnumType.STRING)
     private RoleEnum roleName;
 

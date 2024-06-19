@@ -15,6 +15,7 @@ import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2,
         replace = AutoConfigureTestDatabase.Replace.ANY)
-@EnableJpaAuditing
+@ActiveProfiles("test")
 public class PostRepositoryTest {
     @Autowired
     private PostRepository postRepository;

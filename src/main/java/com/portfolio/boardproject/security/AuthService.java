@@ -3,6 +3,7 @@ package com.portfolio.boardproject.security;
 import com.portfolio.boardproject.domain.User;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
+import com.portfolio.boardproject.vo.VerifyCodeVO;
 
 import java.util.concurrent.Future;
 
@@ -14,5 +15,5 @@ public interface AuthService {
     Future<String> sendMail(User user);
 
     // mail verify
-    Boolean verifyEmail(String email, String code);
+    Boolean verifyEmail(VerifyCodeVO verifyCodeVO);
 }

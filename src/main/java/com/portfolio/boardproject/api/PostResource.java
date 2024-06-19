@@ -1,6 +1,7 @@
 package com.portfolio.boardproject.api;
 
 import com.portfolio.boardproject.command.post.*;
+import com.portfolio.boardproject.security.CustomUserDetails;
 import com.portfolio.boardproject.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +36,7 @@ public class PostResource {
     })
     @RequestMapping(path = "/posts", method = RequestMethod.POST)
     public ResponseEntity<PostCreateResponse> createPost(@RequestBody PostCreateCommand postCreateCommand) {
+        postCreateCommand.setUserId(this.getUserId());
         PostCreateResponse createResponse = postService.createPost(postCreateCommand);
         return ResponseEntity.status(HttpStatus.CREATED).body(createResponse);
     }
@@ -43,6 +47,7 @@ public class PostResource {
     })
     @RequestMapping(path = "/posts/{postId}", method = RequestMethod.PUT)
     public ResponseEntity<Void> updatePost(@PathVariable("postId") UUID postId, @RequestBody PostUpdateCommand postUpdateCommand) {
+        postUpdateCommand.setUserId(this.getUserId());
         postUpdateCommand.setPostId(postId);
         postService.updatePost(postUpdateCommand);
         return ResponseEntity.noContent().build();
@@ -70,6 +75,7 @@ public class PostResource {
     @RequestMapping(path = "/posts/{postId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deletePost(@PathVariable("postId") UUID postId,
                                            @RequestBody PostDeleteCommand postDeleteCommand) {
+        postDeleteCommand.setUserId(this.getUserId());
         postDeleteCommand.setPostId(postId);
         postService.deletePost(postDeleteCommand);
         return ResponseEntity.noContent().build();
@@ -86,6 +92,13 @@ public class PostResource {
     public ResponseEntity<List<PostTrackQueryResponse>> retrievePosts() {
         List<PostTrackQueryResponse> postTrackQueryResponseList = postService.findAllPosts();
         return ResponseEntity.ok(postTrackQueryResponseList);
+    }
+
+
+    private UUID getUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        return customUserDetails.getId();
     }
 
 }
