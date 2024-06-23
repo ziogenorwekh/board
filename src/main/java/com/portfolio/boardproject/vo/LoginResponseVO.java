@@ -3,6 +3,7 @@ package com.portfolio.boardproject.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -17,5 +18,18 @@ public class LoginResponseVO {
     public LoginResponseVO(UUID userId, String token) {
         this.userId = userId;
         this.token = token;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LoginResponseVO that = (LoginResponseVO) o;
+        return Objects.equals(userId, that.userId) && Objects.equals(token, that.token);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, token);
     }
 }

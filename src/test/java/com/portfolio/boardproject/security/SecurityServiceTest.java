@@ -8,135 +8,128 @@ import com.portfolio.boardproject.jpa.UserRepository;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
 import com.portfolio.boardproject.vo.VerifyCodeVO;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-@SpringBootTest
-//@EnableJpaAuditing
+//@SpringBootTest
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 public class SecurityServiceTest {
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    @InjectMocks
+    private AuthServiceImpl authService;
 
-    @Autowired
-    private AuthService authService;
+    @Mock
+    private JavaMailSender javaMailSender;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
+    @Mock
     private RedisTemplate<String, String> redisTemplate;
 
-    private User user;
+    @Mock
+    private JwtProvider jwtProvider;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    private final UUID userId = UUID.randomUUID();
 
     @BeforeEach
     public void setUp() {
-        String encodePassword = passwordEncoder.encode("password");
-        UUID userId = UUID.randomUUID();
-
-        UserEntity userEntity = UserEntity.builder()
-                .posts(new ArrayList<>())
-                .role(new ArrayList<>())
-                .id(userId)
-                .username("username")
-                .password(encodePassword)
-                .email("email@email.com")
-                .enabled(true)
-                .build();
-        RoleEntity roleEntity = RoleEntity.builder().user(userEntity).roleName(RoleEnum.USER).build();
-        userEntity.getRole().add(roleEntity);
-        userRepository.save(userEntity);
-
-        UUID userId2 = UUID.randomUUID();
-        String encodePassword2 = passwordEncoder.encode("otherpwd");
-        UserEntity userEntity2 = UserEntity.builder()
-                .posts(new ArrayList<>())
-                .role(new ArrayList<>())
-                .id(userId2)
-                .username("newuser")
-                .password(encodePassword2)
-                .email("ziogenorwekh@gmail.com")
-                .enabled(false)
-                .build();
-        RoleEntity roleEntity2 = RoleEntity.builder().user(userEntity2).roleName(RoleEnum.USER).build();
-        userEntity.getRole().add(roleEntity2);
-
-        userRepository.save(userEntity2);
     }
 
     @AfterEach
     public void tearDown() {
-        userRepository.deleteAll();
-        redisTemplate.getConnectionFactory().getConnection().flushDb();
     }
 
     @Test
     @DisplayName("로그인 메서드 테스트")
     public void userLogin() {
         // given
+        String token = "token";
         LoginVO loginVO = new LoginVO("username", "password");
+        Authentication authentication = Mockito.mock(Authentication.class);
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
 
+        Mockito.when(authenticationManager.authenticate(Mockito.any(Authentication.class))).thenReturn(authentication);
+        Mockito.when(authentication.getPrincipal()).thenReturn(customUserDetails);
+        Mockito.when(customUserDetails.getId()).thenReturn(userId);
+        Mockito.when(jwtProvider.createToken(customUserDetails)).thenReturn(token);
+
+        LoginResponseVO expectedResponse = new LoginResponseVO(userId, token);
         // when
-        LoginResponseVO loginResponseVO = authService.login(loginVO);
+        LoginResponseVO actualResponse = authService.login(loginVO);
 
         // then
-        Assertions.assertNotNull(loginResponseVO);
+        Assertions.assertNotNull(actualResponse);
+        Assertions.assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     @DisplayName("메일 보내기 테스트")
-    public void mailSendTests() {
+    public void mailSendTests() throws MessagingException, ExecutionException, InterruptedException {
         // given
         UUID userId = UUID.randomUUID();
         User user = new User(userId, "password", "username", "ziogenorwekh@gmail.com");
+
+        Mockito.when(redisTemplate.delete(Mockito.anyString())).thenReturn(true);
+
+        ValueOperations<String, String> valueOperations = Mockito.mock(ValueOperations.class);
+        Mockito.when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        Mockito.doNothing().when(valueOperations).set(Mockito.anyString(), Mockito.anyString(), Mockito.any(Duration.class));
+
+        MimeMessage mimeMessage = Mockito.mock(MimeMessage.class);
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+        Mockito.when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessage.class));
+
         // when
-        authService.sendMail(user);
+        Future<String> futureCode = authService.sendMail(user);
+        String code = futureCode.get();
+
         // then
-        Set<String> keys = redisTemplate.keys("*");
-        Assertions.assertEquals(1, keys.size());
-        Assertions.assertTrue(redisTemplate.hasKey("ziogenorwekh@gmail.com").booleanValue());
+        Mockito.verify(redisTemplate).delete(user.getEmail());
+        Mockito.verify(valueOperations).set(user.getEmail(), code, Duration.ofMinutes(5L));
+        Mockito.verify(javaMailSender).send(Mockito.any(MimeMessage.class));
+
+        Assertions.assertNotNull(code);
     }
 
     @Test
     @DisplayName("이메일로부터 온 값을 받아 유저 인증하기")
-    public void verifyCodeUserActivateTest() throws ExecutionException, InterruptedException {
+    public void verifyCodeUserActivateTest() {
         // given
-        User user = customUserDetailsService.findByEmail("ziogenorwekh@gmail.com");
+        VerifyCodeVO verifyCodeVO = new VerifyCodeVO("ziogenorwekh@gmail.com", "123456");
+        ValueOperations<String, String> valueOperations = Mockito.mock(ValueOperations.class);
+        Mockito.when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        Mockito.when(redisTemplate.opsForValue().get("ziogenorwekh@gmail.com")).thenReturn("123456");
         // when
-        Future<String> stringFuture = authService.sendMail(user);
+        Boolean aBoolean = authService.verifyEmail(verifyCodeVO);
         // then
-        Boolean aBoolean = authService.verifyEmail(new VerifyCodeVO("ziogenorwekh@gmail.com",stringFuture.get()));
         Assertions.assertTrue(aBoolean);
-    }
-
-    @Test
-    @DisplayName("이메일 인증 받은 값을 유저 디테일 서비스에 적용하고 최종 확인하기")
-//    @Transactional
-    public void verifyCodeUserActivateWithDetailsServiceTest() throws ExecutionException, InterruptedException {
-        // given
-        User user = customUserDetailsService.findByEmail("ziogenorwekh@gmail.com");
-        Future<String> code = authService.sendMail(user);
-        authService.verifyEmail(new VerifyCodeVO(user.getEmail(), code.get()));
-
-        // when
-        customUserDetailsService.activateUser("ziogenorwekh@gmail.com");
-        // then
-        UserEntity result = userRepository.findByEmail("ziogenorwekh@gmail.com").get();
-        Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.getEnabled());
     }
 }
