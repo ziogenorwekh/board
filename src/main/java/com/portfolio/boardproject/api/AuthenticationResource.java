@@ -44,7 +44,8 @@ public class AuthenticationResource {
             @ApiResponse(responseCode = "400", description = "Invalid login credentials")
     })
     @RequestMapping(path = "/login", method = RequestMethod.POST)
-    public ResponseEntity<LoginResponseVO> login(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Login credentials") @RequestBody LoginVO loginVO) {
+    public ResponseEntity<LoginResponseVO> login(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Login credentials")
+                                                     @RequestBody LoginVO loginVO) {
         LoginResponseVO loginResponseVO = authService.login(loginVO);
         return ResponseEntity.ok(loginResponseVO);
     }

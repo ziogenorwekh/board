@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
 @Slf4j
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -31,29 +32,35 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             log.info("Bearer token found -> {}", authorizationHeader);
             String token = authorizationHeader.substring(7);
-            String username = checkToken(token);
+            String username;
+
+            try {
+                username = jwtProvider.verifyTokenAndGetUsername(token);
+            } catch (RuntimeException e) {
+                sendTokenError(response, e.getMessage(), HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService
                         .loadUserByUsername(username);
 
-                if (jwtProvider.verifyToken(token)) {
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String checkToken(String token) {
-        if (jwtProvider.verifyToken(token)) {
-            return jwtProvider.getUsername(token);
-        }
-        return null;
+    private void sendTokenError(HttpServletResponse resp, String message, int status) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("application/json");
+        resp.getWriter().write("{\"error\": \"" + message + "\"}");
+        resp.getWriter().flush();
+        resp.getWriter().close();
     }
 }
