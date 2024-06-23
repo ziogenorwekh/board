@@ -1,10 +1,6 @@
 package com.portfolio.boardproject.security;
 
 import com.portfolio.boardproject.domain.User;
-import com.portfolio.boardproject.jpa.RoleEntity;
-import com.portfolio.boardproject.jpa.RoleEnum;
-import com.portfolio.boardproject.jpa.UserEntity;
-import com.portfolio.boardproject.jpa.UserRepository;
 import com.portfolio.boardproject.vo.LoginResponseVO;
 import com.portfolio.boardproject.vo.LoginVO;
 import com.portfolio.boardproject.vo.VerifyCodeVO;
@@ -16,27 +12,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-//@SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class SecurityServiceTest {
