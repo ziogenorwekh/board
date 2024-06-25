@@ -3,6 +3,7 @@ package com.portfolio.boardproject.posttest;
 import com.portfolio.boardproject.api.PostResource;
 import com.portfolio.boardproject.command.post.*;
 import com.portfolio.boardproject.domain.Post;
+import com.portfolio.boardproject.security.CustomUserDetails;
 import com.portfolio.boardproject.service.PostService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -19,6 +20,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -52,6 +56,15 @@ public class PostIntegrationTest {
         PostCreateCommand postCreateCommand = new PostCreateCommand("title", "contents", userId);
         PostCreateResponse postCreateResponse = new PostCreateResponse(postId, LocalDateTime.now());
         Mockito.when(postService.createPost(postCreateCommand)).thenReturn(postCreateResponse);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
+        Mockito.when(authentication.getPrincipal()).thenReturn(customUserDetails);
+        Mockito.when(customUserDetails.getId()).thenReturn(userId);
+
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
         // when
         ResponseEntity<PostCreateResponse> responseEntity = postResource.createPost(postCreateCommand);
         // then
@@ -70,6 +83,15 @@ public class PostIntegrationTest {
         PostUpdateCommand postUpdateCommand = new PostUpdateCommand("newTitle", "newContents", userId);
         postUpdateCommand.setPostId(postId);
         Mockito.doNothing().when(postService).updatePost(postUpdateCommand);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
+        Mockito.when(authentication.getPrincipal()).thenReturn(customUserDetails);
+        Mockito.when(customUserDetails.getId()).thenReturn(userId);
+
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
         // when
         ResponseEntity<Void> response = postResource.updatePost(postId, postUpdateCommand);
         // then
@@ -127,6 +149,14 @@ public class PostIntegrationTest {
         PostDeleteCommand postDeleteCommand = new PostDeleteCommand(userId);
         postDeleteCommand.setPostId(postId);
         Mockito.doNothing().when(postService).deletePost(Mockito.any(PostDeleteCommand.class));
+        Authentication authentication = Mockito.mock(Authentication.class);
+        CustomUserDetails customUserDetails = Mockito.mock(CustomUserDetails.class);
+        Mockito.when(authentication.getPrincipal()).thenReturn(customUserDetails);
+        Mockito.when(customUserDetails.getId()).thenReturn(userId);
+
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
         // when
         ResponseEntity<Void> response = postResource.deletePost(postId, new PostDeleteCommand(userId));
         // then
