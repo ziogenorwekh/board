@@ -3,3 +3,6 @@ spring:
     active: prod
   application:
     name: board-project
+  output:
+    ansi:
+      enabled: ALWAYS
