@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid username or password", e);
         }
-        return new LoginResponseVO(userDetails.getId(), token);
+        return new LoginResponseVO(userDetails.getId(), token, userDetails.getUsername());
     }
 
     @Async

@@ -68,7 +68,7 @@ public class SecurityServiceTest {
         Mockito.when(customUserDetails.getId()).thenReturn(userId);
         Mockito.when(jwtProvider.createToken(customUserDetails)).thenReturn(token);
 
-        LoginResponseVO expectedResponse = new LoginResponseVO(userId, token);
+        LoginResponseVO expectedResponse = new LoginResponseVO(userId, token,"username");
         // when
         LoginResponseVO actualResponse = authService.login(loginVO);
 

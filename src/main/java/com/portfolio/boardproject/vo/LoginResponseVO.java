@@ -15,9 +15,13 @@ public class LoginResponseVO {
     @Schema(description = "JWT token for authentication", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
     private final String token;
 
-    public LoginResponseVO(UUID userId, String token) {
+    @Schema(description = "Username generated for the user", example = "hellouser")
+    private final String username;
+
+    public LoginResponseVO(UUID userId, String token, String username) {
         this.userId = userId;
         this.token = token;
+        this.username = username;
     }
 
     @Override

@@ -44,7 +44,7 @@ public class SecurityIntegrationTest {
         UUID userId = UUID.randomUUID();
         String token = "token";
         LoginVO loginVO = new LoginVO("username", "password");
-        LoginResponseVO loginResponseVO = new LoginResponseVO(userId, token);
+        LoginResponseVO loginResponseVO = new LoginResponseVO(userId, token,"username");
         Mockito.when(authService.login(loginVO)).thenReturn(loginResponseVO);
 
         // when
