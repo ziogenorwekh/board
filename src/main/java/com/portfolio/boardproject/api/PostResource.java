@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/api")
 public class PostResource {
@@ -36,6 +38,7 @@ public class PostResource {
     })
     @RequestMapping(path = "/posts", method = RequestMethod.POST)
     public ResponseEntity<PostCreateResponse> createPost(@RequestBody PostCreateCommand postCreateCommand) {
+        log.info("Create Post");
         postCreateCommand.setUserId(this.getUserId());
         PostCreateResponse createResponse = postService.createPost(postCreateCommand);
         return ResponseEntity.status(HttpStatus.CREATED).body(createResponse);
@@ -62,6 +65,7 @@ public class PostResource {
     })
     @RequestMapping(path = "/posts/{postId}", method = RequestMethod.GET)
     public ResponseEntity<PostTrackQueryResponse> retrievePost(@PathVariable("postId") UUID postId) {
+        log.info("Retrieve Post");
         PostTrackQuery postTrackQuery = new PostTrackQuery(postId);
         PostTrackQueryResponse queryResponse = postService.findOnePost(postTrackQuery);
         return ResponseEntity.ok(queryResponse);
@@ -75,6 +79,7 @@ public class PostResource {
     @RequestMapping(path = "/posts/{postId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deletePost(@PathVariable("postId") UUID postId,
                                            @RequestBody PostDeleteCommand postDeleteCommand) {
+        log.info("Delete Post");
         postDeleteCommand.setUserId(this.getUserId());
         postDeleteCommand.setPostId(postId);
         postService.deletePost(postDeleteCommand);
@@ -90,6 +95,7 @@ public class PostResource {
     })
     @RequestMapping(path = "/posts", method = RequestMethod.GET)
     public ResponseEntity<List<PostTrackQueryResponse>> retrievePosts() {
+        log.info("Retrieve All Posts");
         List<PostTrackQueryResponse> postTrackQueryResponseList = postService.findAllPosts();
         return ResponseEntity.ok(postTrackQueryResponseList);
     }

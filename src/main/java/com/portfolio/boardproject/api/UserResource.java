@@ -7,13 +7,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-
+@Slf4j
 @RestController
 @RequestMapping(path = "/api")
 public class UserResource {
@@ -34,6 +35,7 @@ public class UserResource {
     })
     @RequestMapping(path = "/users/{userId}",method = RequestMethod.GET)
     public ResponseEntity<UserTrackQueryResponse> retrieveUser(@PathVariable UUID userId) {
+        log.info("Retrieving user details by user ID {}", userId);
         UserTrackQuery userTrackQuery = new UserTrackQuery(userId);
         UserTrackQueryResponse trackQueryResponse = userService.findUserById(userTrackQuery);
         return ResponseEntity.ok(trackQueryResponse);
@@ -49,6 +51,7 @@ public class UserResource {
     })
     @RequestMapping(path = "/users", method = RequestMethod.POST)
     public ResponseEntity<UserCreateResponse> createUser(@RequestBody UserCreateCommand userCreateCommand) {
+        log.info("create user {}", userCreateCommand);
         UserCreateResponse createResponse = userService.createUser(userCreateCommand);
         return ResponseEntity.status(HttpStatus.CREATED).body(createResponse);
     }
@@ -60,7 +63,7 @@ public class UserResource {
     })
     @RequestMapping(path = "/users/{userId}",method = RequestMethod.PUT)
     public ResponseEntity<Void> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateCommand userUpdateCommand) {
-
+        log.info("update user {}", userId);
         userUpdateCommand.setUserId(userId);
         userService.updateUser(userUpdateCommand);
         return ResponseEntity.noContent().build();
@@ -73,6 +76,7 @@ public class UserResource {
     })
     @RequestMapping(path = "/users/{userId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
+        log.info("delete user {}", userId);
         UserDeleteCommand userDeleteCommand = new UserDeleteCommand(userId);
         userService.deleteUser(userDeleteCommand);
         return ResponseEntity.noContent().build();

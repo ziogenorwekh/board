@@ -43,7 +43,6 @@ public class UserServiceImpl implements UserService {
                 , userCreateCommand.getUsername(), userCreateCommand.getEmail());
         Role role = new Role(new UserId(userId), RoleEnum.USER);
         user.addRole(role);
-
         UserEntity userEntity = userMapper.toUserEntity(user);
         UserEntity saved = userRepository.save(userEntity);
         return new UserCreateResponse(saved.getId(), saved.getUsername(), saved.getEmail(), saved.getCreatedAt());

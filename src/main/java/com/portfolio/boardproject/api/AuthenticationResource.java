@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationResource {
@@ -46,6 +48,8 @@ public class AuthenticationResource {
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public ResponseEntity<LoginResponseVO> login(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Login credentials")
                                                      @RequestBody LoginVO loginVO) {
+
+        log.info("login {}", loginVO);
         LoginResponseVO loginResponseVO = authService.login(loginVO);
         return ResponseEntity.ok(loginResponseVO);
     }
@@ -57,6 +61,8 @@ public class AuthenticationResource {
     })
     @RequestMapping(path = "/send-mail", method = RequestMethod.POST)
     public ResponseEntity<Void> mailSend(@Parameter(description = "User email") @RequestBody SendEmailVO sendEmailVO) {
+
+        log.info("send email {}", sendEmailVO.getEmail());
         User user = customUserDetailsService.findByEmail(sendEmailVO.getEmail());
         authService.sendMail(user);
         return ResponseEntity.ok().build();
@@ -69,6 +75,8 @@ public class AuthenticationResource {
     })
     @RequestMapping(path = "/verification/mail",method = RequestMethod.PUT)
     public ResponseEntity<Void> verifyMail(@Parameter(description = "Verification code") @RequestBody VerifyCodeVO verifyCodeVO) {
+
+        log.info("verify email {}", verifyCodeVO.getEmail());
         Boolean verified = authService.verifyEmail(verifyCodeVO);
         if (verified) {
             customUserDetailsService.activateUser(verifyCodeVO.getEmail());
