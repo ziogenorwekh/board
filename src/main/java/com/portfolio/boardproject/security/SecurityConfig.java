@@ -75,8 +75,7 @@ public class SecurityConfig {
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint);
         });
 
-        http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class).addFilter(jwtFilter);
 
         http.authenticationManager(authenticationManager(authenticationConfiguration));
         return http.build();
