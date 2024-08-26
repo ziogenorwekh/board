@@ -75,8 +75,12 @@ public class SecurityConfig {
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint);
         });
 
-        http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class)
-                .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.cors(abstractHttpConfigurer->{
+            abstractHttpConfigurer.configurationSource(corsConfigurationSource());
+        });
+
+        http
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.authenticationManager(authenticationManager(authenticationConfiguration));
         return http.build();
@@ -96,5 +100,15 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }
