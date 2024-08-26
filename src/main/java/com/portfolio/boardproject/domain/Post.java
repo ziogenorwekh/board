@@ -82,4 +82,16 @@ public class Post {
             throw new NotOwnerException("You are not allowed to update a post");
         }
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "postId=" + postId +
+                ", title=" + title +
+                ", contents=" + contents +
+                ", userId=" + userId +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

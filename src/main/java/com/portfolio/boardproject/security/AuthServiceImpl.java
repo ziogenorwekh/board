@@ -7,6 +7,7 @@ import com.portfolio.boardproject.vo.LoginVO;
 import com.portfolio.boardproject.vo.VerifyCodeVO;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,6 +25,7 @@ import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.Future;
 
+@Slf4j
 @Component
 public class AuthServiceImpl implements AuthService {
 
@@ -50,9 +52,11 @@ public class AuthServiceImpl implements AuthService {
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authenticate);
             userDetails = (CustomUserDetails) authenticate.getPrincipal();
+            log.info("username : {}",userDetails.getUsername());
             token = jwtProvider.createToken(userDetails);
 
         } catch (BadCredentialsException e) {
+            log.error(e.getMessage());
             throw new BadCredentialsException("Invalid username or password", e);
         }
         return new LoginResponseVO(userDetails.getId(), token, userDetails.getUsername());
@@ -62,6 +66,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Future<String> sendMail(User user) {
         if (user.getEnabled()) {
+            log.error("user is already enabled");
             throw new AlreadyRegisteredException("User is enabled");
         }
         redisTemplate.delete(user.getEmail());
@@ -73,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
             code = String.valueOf(number);
         }
         sendActivationEmail(user.getEmail(), code);
+        log.info("user activation code : {}", code);
         redisTemplate.opsForValue().set(user.getEmail(), code, Duration.ofMinutes(5L));
         return AsyncResult.forValue(code);
     }
@@ -80,7 +86,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Boolean verifyEmail(VerifyCodeVO verifyCodeVO) {
         String savedCode = redisTemplate.opsForValue().get(verifyCodeVO.getEmail());
+
         if (savedCode != null && savedCode.equals(verifyCodeVO.getCode())) {
+            log.info("saved code : {} is exist.", verifyCodeVO.getCode());
             return true;
         }
         return false;

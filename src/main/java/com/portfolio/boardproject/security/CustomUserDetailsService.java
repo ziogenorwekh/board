@@ -5,12 +5,14 @@ import com.portfolio.boardproject.exception.UserNotFoundException;
 import com.portfolio.boardproject.jpa.UserEntity;
 import com.portfolio.boardproject.jpa.UserRepository;
 import com.portfolio.boardproject.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -28,6 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
         User user = new User(userEntity);
+        log.info("user found email is : {}", user.getEmail());
         return new CustomUserDetails(user);
     }
 
@@ -35,6 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public User findByEmail(String email) {
         UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() ->
                 new UserNotFoundException(String.format("User with email %s not found", email)));
+        log.info("user found email is : {}", userEntity.getEmail());
         return new User(userEntity);
     }
 
@@ -46,6 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = new User(userEntity);
         user.updateEnabled();
         UserEntity updatedUserEntity = userMapper.toUserEntity(user);
+        log.info("activated user : {}", updatedUserEntity.getEmail());
         userRepository.save(updatedUserEntity);
     }
 

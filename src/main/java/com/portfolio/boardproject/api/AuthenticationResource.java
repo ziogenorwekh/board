@@ -79,9 +79,11 @@ public class AuthenticationResource {
         log.info("verify email {}", verifyCodeVO.getEmail());
         Boolean verified = authService.verifyEmail(verifyCodeVO);
         if (verified) {
+            log.info("activation code is successfully verified.");
             customUserDetailsService.activateUser(verifyCodeVO.getEmail());
             return ResponseEntity.ok().build();
         } else {
+            log.error("verification code error");
             throw new BadCredentialsException("Invalid verification code");
         }
     }

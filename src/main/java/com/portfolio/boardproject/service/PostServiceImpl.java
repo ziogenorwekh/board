@@ -9,12 +9,14 @@ import com.portfolio.boardproject.mapper.PostMapper;
 import com.portfolio.boardproject.valueobject.Contents;
 import com.portfolio.boardproject.valueobject.Title;
 import com.portfolio.boardproject.valueobject.UserId;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PostServiceImpl implements PostService {
 
@@ -33,7 +35,7 @@ public class PostServiceImpl implements PostService {
         Post post = Post.initialize(postCreateCommand);
         PostEntity postEntity = postMapper.toPostEntity(post);
         PostEntity savedPost = postRepository.save(postEntity);
-
+        log.info("Created post: {}", post);
         return new PostCreateResponse(savedPost.getPostId(), savedPost.getCreatedAt());
     }
 
@@ -43,6 +45,7 @@ public class PostServiceImpl implements PostService {
         PostEntity postEntity = postRepository.findById(postTrackQuery.getPostId())
                 .orElseThrow(() -> new PostNotFoundException(String.
                         format("Post with id %s not found", postTrackQuery.getPostId())));
+        log.info("Found postId : {}", postEntity.getPostId());
         return postMapper.toPostTrackQueryResponse(postEntity);
     }
 
@@ -61,7 +64,7 @@ public class PostServiceImpl implements PostService {
         PostEntity postEntity = postRepository.findById(postUpdateCommand.getPostId()).orElseThrow(() ->
                 new PostNotFoundException(String.
                 format("Post with id %s not found", postUpdateCommand.getPostId())));
-
+        log.info("Updated postId : {}", postEntity.getPostId());
         Post post = new Post(postEntity);
         post.updateTitle(new Title(postUpdateCommand.getTitle()), new UserId(postUpdateCommand.getUserId()));
         post.updateContents(new Contents(postUpdateCommand.getContent()), new UserId(postUpdateCommand.getUserId()));
@@ -77,6 +80,7 @@ public class PostServiceImpl implements PostService {
         PostEntity postEntity = postRepository
                 .findById(postDeleteCommand.getPostId()).orElseThrow(() -> new PostNotFoundException(String.
                         format("Post with id %s not found", postDeleteCommand.getPostId())));
+        log.info("Deleted postId : {}", postEntity.getPostId());
         Post post = new Post(postEntity);
         post.delete(new UserId(postDeleteCommand.getUserId()));
         postRepository.delete(postEntity);

@@ -69,4 +69,16 @@ public class User {
         this.enabled = true;
     }
 
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "createdAt=" + createdAt +
+                ", enabled=" + enabled +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", password=" + password +
+                ", id=" + id +
+                '}';
+    }
 }
