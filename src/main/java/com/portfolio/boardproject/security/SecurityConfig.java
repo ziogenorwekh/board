@@ -75,10 +75,11 @@ public class SecurityConfig {
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint);
         });
 
-        http.cors(abstractHttpConfigurer->{
-            abstractHttpConfigurer.configurationSource(corsConfigurationSource());
-        });
+//        http.cors(abstractHttpConfigurer->{
+//            abstractHttpConfigurer.configurationSource(corsConfigurationSource());
+//        });
 
+        http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
         http
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -100,7 +101,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("*"));
