@@ -75,13 +75,11 @@ public class SecurityConfig {
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint);
         });
 
-//        http.cors(abstractHttpConfigurer->{
-//            abstractHttpConfigurer.configurationSource(corsConfigurationSource());
-//        });
+        http.cors(abstractHttpConfigurer->{
+            abstractHttpConfigurer.configurationSource(corsConfigurationSource());
+        });
 
-        http.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
-        http
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.authenticationManager(authenticationManager(authenticationConfiguration));
         return http.build();
