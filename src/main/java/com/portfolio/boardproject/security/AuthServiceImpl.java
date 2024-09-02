@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authenticate);
             userDetails = (CustomUserDetails) authenticate.getPrincipal();
-            log.info("username : {}",userDetails.getUsername());
+            log.info("username : {}", userDetails.getUsername());
             token = jwtProvider.createToken(userDetails);
 
         } catch (BadCredentialsException e) {
